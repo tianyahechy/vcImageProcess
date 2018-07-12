@@ -30,9 +30,6 @@ public:
 	void InitMembers();
 
 public:
-	//数字图像平移
-	BOOL Translation(LPSTR lpSrcStartBits, long lWidth, long lHeight, long lXOffset, long lYOffset, long lLineBytes, long lDstLineBytes);
-
 
 private:
 	LPBITMAPINFO		lpbminfo;			//位图信息指针

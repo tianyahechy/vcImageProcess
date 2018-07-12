@@ -10,6 +10,7 @@
 #include "ImageProcess.h"
 #endif
 #include "function.h"
+#include "DlgTran.h"
 
 #include "ImageProcessDoc.h"
 #include "ImageProcessView.h"
@@ -160,6 +161,45 @@ void CImageProcessView::OnTranslation()
 	CImageProcessDoc * pDoc = GetDocument();
 	//锁定DIB,指向源图像的指针
 	LPSTR lpSrcDib = (LPSTR) ::GlobalLock((HGLOBAL)pDoc->GetHObject());
+	//判断是否是8位位图，不是则返回
+	if ( pDoc->m_dib.getColorNum(lpSrcDib) != 256 )
+	{
+		AfxMessageBox(_T("对不起，不是256位图"));
+		::GlobalUnlock((HGLOBAL)pDoc->GetHObject());
+		return;
+	}
+	//找到DIB图像像素起始位置的指针
+	LPSTR lpSrcStartBits = pDoc->m_dib.GetBits(lpSrcDib);
+	//获得图像的宽度
+	long lSrcWidth = pDoc->m_dib.getWidth(lpSrcDib);
+	//获得图像的高度
+	long lSrcHeight = pDoc->m_dib.getHeight(lpSrcDib);
+	//计算图像每行的字节数
+	long lSrcLineBytes = pDoc->m_dib.getReqByteWidth(lSrcWidth * 8);
+	long lDstLineBytes = pDoc->m_dib.getReqByteWidth(lSrcWidth * 8);
+	//计算新图像每行的字节数
+	CDlgTran tranPara;
+	if (tranPara.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	int temVer = tranPara.m_verOff;
+	int temHor = tranPara.m_horOff;
+	//平移
+	if (Translation(lpSrcStartBits, lSrcWidth,lSrcHeight,temVer,temHor,lSrcLineBytes, lDstLineBytes))
+	{
+		//设置标记
+		pDoc->SetModifiedFlag(TRUE);
+		//更新视图
+		pDoc->UpdateAllViews(NULL);
+		//解除锁定
+		::GlobalUnlock((HGLOBAL)pDoc->GetHObject());
+	}
+	else
+	{
+		AfxMessageBox(_T("分配内存失败!"));
+	}
 }
 
 void CImageProcessView::OnInitialUpdate()
