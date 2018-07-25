@@ -230,6 +230,11 @@ BEGIN
     POPUP "几何变换"
     BEGIN
         MENUITEM "图像平移",                        ID_Translation
+        MENUITEM "图象旋转",                        ID_Rotation
+    END
+    POPUP "图象分割"
+    BEGIN
+        MENUITEM "roberts边缘分割",                 ID_RobertsEdgeDetection
     END
 END
 
@@ -350,6 +355,17 @@ BEGIN
     EDITTEXT        IDC_EDIT3,93,51,40,14,ES_AUTOHSCROLL
 END
 
+IDD_DLGROT DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "对话框"
+FONT 9, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,209,179,50,14
+    PUSHBUTTON      "取消",IDCANCEL,263,179,50,14
+    LTEXT           "角度：",IDC_STATIC,24,58,22,8
+    EDITTEXT        IDC_EDIT1,79,57,40,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -407,6 +423,14 @@ BEGIN
     END
 
     IDD_DLGTRAN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DLGROT, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 313

@@ -48,6 +48,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnTranslation();
+	afx_msg void OnRobertsedgedetection();
+	afx_msg void OnRotation();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本

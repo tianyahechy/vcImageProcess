@@ -85,18 +85,25 @@
 #define IDS_EXPLORER                    305
 #define IDS_EDIT_MENU                   306
 #define IDD_DLGTRAN                     310
+#define IDD_DLGROT                      311
 #define IDC_EDIT2                       1001
 #define IDC_EDIT3                       1002
+#define IDC_EDIT1                       1003
 #define ID_32771                        32771
 #define ID_Translation                  32772
+#define ID_32773                        32773
+#define ID_                             32774
+#define ID_RobertsEdgeDetection         32775
+#define ID_32776                        32776
+#define ID_Rotation                     32777
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1003
-#define _APS_NEXT_SYMED_VALUE           311
+#define _APS_NEXT_COMMAND_VALUE         32778
+#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif
