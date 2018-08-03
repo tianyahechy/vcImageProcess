@@ -107,7 +107,6 @@
     <ClInclude Include="Dib2.h" />
     <ClInclude Include="DlgRot.h" />
     <ClInclude Include="DlgTran.h" />
-    <ClInclude Include="EdgeDetection.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="ImageProcess.h" />
@@ -127,7 +126,6 @@
     <ClCompile Include="Dib2.cpp" />
     <ClCompile Include="DlgRot.cpp" />
     <ClCompile Include="DlgTran.cpp" />
-    <ClCompile Include="EdgeDetection.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageProcessDoc.cpp" />
