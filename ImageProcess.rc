@@ -231,6 +231,12 @@ BEGIN
     BEGIN
         MENUITEM "图像平移",                        ID_Translation
         MENUITEM "图象旋转",                        ID_Rotation
+        POPUP "图像镜像"
+        BEGIN
+            MENUITEM "水平",                          ID_Mirror
+            MENUITEM "垂直",                          ID_Mirror2
+        END
+        MENUITEM "图像转置",                        ID_Transpose
     END
     POPUP "图象分割"
     BEGIN

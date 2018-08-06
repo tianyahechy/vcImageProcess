@@ -96,13 +96,20 @@
 #define ID_RobertsEdgeDetection         32775
 #define ID_32776                        32776
 #define ID_Rotation                     32777
+#define ID_32778                        32778
+#define ID_32779                        32779
+#define ID_32780                        32780
+#define ID_Mirror                       32781
+#define ID_Mirror2                      32782
+#define ID_32783                        32783
+#define ID_Transpose                    32784
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32778
+#define _APS_NEXT_COMMAND_VALUE         32785
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           312
 #endif
