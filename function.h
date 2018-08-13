@@ -264,8 +264,73 @@ BOOL Transpose(
 
 }
 
+//缩放
+HGLOBAL Zoom(LPSTR lpSrcDib,			//指向源DIB的指针
+	LPSTR lpSrcStartBits,				//指向源DIB的起始像素的指针
+	long lWidth,						//源DIB图像宽度
+	long lHeight,						//源DIB图像高度
+	long lLineBytes,					//源DIB图像字节宽度（4的倍数)
+	WORD palSize,						//源DIB图像调色板大小
+	long lDstWidth,						//目标图像宽度
+	long lDstHeight,					//目标图像高度
+	long lDstLineBytes,					//目标DIB图像行字节数（4的倍数）
+	float fhorRatio,					//水平缩放比率
+	float fVerRatio						//垂直缩放比率
+	)
+{
+	LPSTR lpSrcDIBBits;		//指向源像素的指针
+	LPSTR lpDstDIBBits;		//指向临时图像对应像素的指针
+	LPSTR lpDstStartBits;	//指向临时图像对应像素的指针
+	//分配内存，以保存缩放后的DIB
+	HGLOBAL hDIB = (HGLOBAL)::GlobalAlloc(GHND, lDstLineBytes * lDstHeight + *(LPDWORD)lpSrcDib + palSize);
+	if (hDIB == NULL)
+	{
+		return FALSE;
+	}
+	//锁定内存
+	LPSTR lpdstDib = (char *)::GlobalLock((HGLOBAL)hDIB);
+	//复制DIB信息头和调色板
+	memcpy(lpdstDib, lpSrcDib, *(LPDWORD)lpSrcDib + palSize);
+	//找到新DIB的像素起始位置
+	lpDstStartBits = lpdstDib + *(LPDWORD)lpdstDib + palSize;
+	//获取指向BITMAPINFO结构的指针
+	LPBITMAPINFOHEADER lpbmi = (LPBITMAPINFOHEADER)lpdstDib;
+	//更新DIB图像中的高度和宽度
+	lpbmi->biWidth = lDstWidth;
+	lpbmi->biHeight = lDstHeight;
+	long i1;
+	long j1;
+	for (size_t i = 0; i < lDstHeight; i++)  //行
+	{
+		for (int j = 0; j < lDstWidth; j++)
+		{
+			//指向新DIB第i行，第j个像素的指针
+			lpDstDIBBits = (char *)lpDstStartBits + lDstLineBytes * (lDstHeight - 1 - i) + j;
+			//计算该像素在源DIB中的坐标
+			i1 = (long)(i / fVerRatio + 0.5);
+			j1 = (long)(j / fhorRatio + 0.5);
+			//判断是否在范围内
+			if( ( j1 >= 0 ) && ( j1 < lWidth) && ( i1 >= 0 ) && ( i1 < lHeight ))
+			{
+				//指向源图像第i1行第j1个像素的指针
+				lpSrcDIBBits = (char *)lpSrcStartBits + lLineBytes * (lHeight - 1 - i1) + j1;
+				//复制像素
+				*lpDstDIBBits = *lpSrcDIBBits;
+			}
+			else
+			{
+				//源图像中不存在的像素赋值为255
+				*((unsigned char *)lpDstDIBBits) = 255;
+			}
+
+		}
+	}
+
+	return hDIB;
+
+}
 //双线性插值实现图像旋转
-HGLOBAL Rotate(LPSTR lpSrcDib,		//指向源DIB的指针
+HGLOBAL Rotate_dib2(LPSTR lpSrcDib,		//指向源DIB的指针
 	float fRotateAngle,		//旋转的角度
 	LPSTR lpSrcStartBits, //指向源DIB起始像素的指针
 	long lWidth,	//源DIB图像的宽度

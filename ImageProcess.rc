@@ -237,6 +237,7 @@ BEGIN
             MENUITEM "垂直",                          ID_Mirror2
         END
         MENUITEM "图像转置",                        ID_Transpose
+        MENUITEM "图像缩放",                        ID_32785
     END
     POPUP "图象分割"
     BEGIN
@@ -372,6 +373,19 @@ BEGIN
     EDITTEXT        IDC_EDIT1,79,57,40,14,ES_AUTOHSCROLL
 END
 
+IDD_DLGZOOM DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "对话框"
+FONT 9, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,209,179,50,14
+    PUSHBUTTON      "取消",IDCANCEL,263,179,50,14
+    LTEXT           "横向倍数",IDC_STATIC,25,53,28,8,SS_NOPREFIX
+    LTEXT           "纵向倍数",IDC_STATIC,25,72,28,8,SS_NOPREFIX
+    EDITTEXT        IDC_EDIT1,79,50,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT2,78,69,40,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -437,6 +451,14 @@ BEGIN
     END
 
     IDD_DLGROT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DLGZOOM, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 313
