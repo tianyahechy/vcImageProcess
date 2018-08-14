@@ -54,6 +54,7 @@ public:
 	afx_msg void OnMirror2();
 	afx_msg void OnTranspose();
 	afx_msg void OnZoom();
+	afx_msg void OnGeomrota();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本

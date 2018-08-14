@@ -13,6 +13,7 @@
 #include "DlgTran.h"
 #include "DlgRot.h"
 #include "DlgZoom.h"
+#include "Dlggeo.h"
 
 #include "ImageProcessDoc.h"
 #include "ImageProcessView.h"
@@ -42,6 +43,7 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_Mirror2, &CImageProcessView::OnMirror2)
 	ON_COMMAND(ID_Transpose, &CImageProcessView::OnTranspose)
 	ON_COMMAND(ID_32785, &CImageProcessView::OnZoom)
+	ON_COMMAND(ID_GeomRota, &CImageProcessView::OnGeomrota)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -530,4 +532,58 @@ void CImageProcessView::OnZoom()
 	{
 		AfxMessageBox(_T("分配内存失败!"));
 	}
+}
+
+
+void CImageProcessView::OnGeomrota()
+{
+	// TODO:  在此添加命令处理程序代码
+	CImageProcessDoc * pDoc = GetDocument();
+	//锁定DIB,指向源图像的指针
+	LPSTR lpSrcDib = (LPSTR) ::GlobalLock((HGLOBAL)pDoc->GetHObject());
+	//判断是否是8位位图，不是则返回
+	if (pDoc->m_dib.getColorNum(lpSrcDib) != 256)
+	{
+		AfxMessageBox(_T("对不起，不是256位图"));
+		::GlobalUnlock((HGLOBAL)pDoc->GetHObject());
+		return;
+	}
+	//找到DIB图像像素起始位置的指针
+	LPSTR lpSrcStartBits = pDoc->m_dib.GetBits(lpSrcDib);
+	//获得图像的宽度
+	long lSrcWidth = pDoc->m_dib.getWidth(lpSrcDib);
+	//获得图像的高度
+	long lSrcHeight = pDoc->m_dib.getHeight(lpSrcDib);
+	//计算图像每行的字节数
+	long lSrcLineBytes = pDoc->m_dib.getReqByteWidth(lSrcWidth * 8);
+	
+	CDlggeo RotPara;
+	if (RotPara.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	float fRotationAngle = (float)AngleToRadian(RotPara.m_rotAngle);
+	delete RotPara;
+
+	DWORD palSize = pDoc->m_dib.getPalSize(lpSrcDib); 
+	BeginWaitCursor();
+	HGLOBAL hNewDIB = (HGLOBAL)Rotate_dib2(lpSrcDib, fRotationAngle, lpSrcStartBits, lSrcWidth, lSrcHeight, palSize);
+	//平移
+	if (hNewDIB != NULL)
+	{
+		pDoc->updateObject(hNewDIB);
+		pDoc->setDIB();
+		//设置标记
+		pDoc->SetModifiedFlag(TRUE);
+		//更新视图
+		pDoc->UpdateAllViews(NULL);
+	}
+	else
+	{
+		AfxMessageBox(_T("分配内存失败!"));
+	}
+	//解除锁定
+	::GlobalUnlock((HGLOBAL)pDoc->GetHObject());
+	EndWaitCursor();
 }

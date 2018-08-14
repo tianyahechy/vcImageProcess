@@ -238,6 +238,7 @@ BEGIN
         END
         MENUITEM "图像转置",                        ID_Transpose
         MENUITEM "图像缩放",                        ID_32785
+        MENUITEM "插值算法",                        ID_GeomRota
     END
     POPUP "图象分割"
     BEGIN
@@ -386,6 +387,17 @@ BEGIN
     EDITTEXT        IDC_EDIT2,78,69,40,14,ES_AUTOHSCROLL
 END
 
+IDD_DLGGEO DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "对话框"
+FONT 9, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,209,179,50,14
+    PUSHBUTTON      "取消",IDCANCEL,263,179,50,14
+    EDITTEXT        IDC_EDIT1,120,53,40,14,ES_AUTOHSCROLL
+    LTEXT           "旋转角度",IDC_STATIC,34,54,53,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -459,6 +471,14 @@ BEGIN
     END
 
     IDD_DLGZOOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DLGGEO, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 313
