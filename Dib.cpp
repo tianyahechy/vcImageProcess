@@ -113,6 +113,15 @@ HGLOBAL CDib::loadFile(CFile& file)
 	return m_hDib;
 }
 
+//=======================================================
+// 函数功能： 获取位图数据
+// 输入参数： 无
+// 返回值：   LPBYTE 位图数据指针
+//=======================================================
+LPBYTE CDib::GetData()
+{
+	return (LPBYTE)lpDIBBits;
+}
 //将位图保存到文件
 BOOL CDib::saveFile(HGLOBAL hDib, CFile& file)
 {

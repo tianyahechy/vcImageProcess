@@ -4,6 +4,7 @@
 
 #pragma once
 #include "ImageProcessDoc.h"
+#include "Dib2.h"
 
 class CImageProcessView : public CView
 {
@@ -17,7 +18,8 @@ public:
 
 // 操作
 public:
-
+	CDib2 theDIB;
+	bool _bLoadImage;
 // 重写
 public:
 	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
@@ -55,6 +57,8 @@ public:
 	afx_msg void OnTranspose();
 	afx_msg void OnZoom();
 	afx_msg void OnGeomrota();
+	afx_msg void OngraytransformLinear();
+	afx_msg void OnOpen2();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本

@@ -13,11 +13,10 @@
 #include "DlgTran.h"
 #include "DlgRot.h"
 #include "DlgZoom.h"
-#include "Dlggeo.h"
+//#include "Dlggeo.h"
 
 #include "ImageProcessDoc.h"
 #include "ImageProcessView.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -44,6 +43,8 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_Transpose, &CImageProcessView::OnTranspose)
 	ON_COMMAND(ID_32785, &CImageProcessView::OnZoom)
 	ON_COMMAND(ID_GeomRota, &CImageProcessView::OnGeomrota)
+	ON_COMMAND(ID_grayTransform_Linear, &CImageProcessView::OngraytransformLinear)
+	ON_COMMAND(ID_OPEN2, &CImageProcessView::OnOpen2)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -53,7 +54,7 @@ CImageProcessView::CImageProcessView()
 	// TODO:  在此处添加构造代码
 	m_pDbImage = NULL;
 	m_nDWTCurDepth = 0;
-
+	_bLoadImage = false;
 }
 
 CImageProcessView::~CImageProcessView()
@@ -536,7 +537,7 @@ void CImageProcessView::OnZoom()
 
 
 void CImageProcessView::OnGeomrota()
-{
+{/*
 	// TODO:  在此添加命令处理程序代码
 	CImageProcessDoc * pDoc = GetDocument();
 	//锁定DIB,指向源图像的指针
@@ -586,4 +587,86 @@ void CImageProcessView::OnGeomrota()
 	//解除锁定
 	::GlobalUnlock((HGLOBAL)pDoc->GetHObject());
 	EndWaitCursor();
+	*/
+}
+
+
+void CImageProcessView::OngraytransformLinear()
+{
+	if ( !_bLoadImage )
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	float gMin = 100.0;
+	float gMax = 200.0;
+	//逐个扫描图像中的像素点，进行灰度线性变换
+	for (int j  = 0;  j < lHeight; j++)
+	{
+		for (int i = 0; i < lWidth; i++)
+		{
+			//指向源图像倒数第j行第i个像素的指针
+			LPBYTE lpSrc = (LPBYTE)lpDIBBits + lWidth * j + i;
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//源像素值
+			BYTE pixel = (BYTE)*lpSrc;
+			*lpDst = (BYTE)(((float)(gMax - gMin) / 255) * pixel + gMin + 0.5);
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+	
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+
+}
+
+
+void CImageProcessView::OnOpen2()
+{
+	// TODO:  在此添加命令处理程序代码
+	CString fileName;
+	CFileDialog dlg(TRUE, _T("BMP"), _T("*.BMP"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("位图文件(*.BMP)|*.BMP|"));
+	if (IDOK == dlg.DoModal())
+	{
+		fileName.Format("%s", dlg.GetPathName());
+	}
+	theDIB.LoadFromFile(fileName);
+	_bLoadImage = true;
+	//显示图像
+	CPoint pt;
+	pt.x = 0;
+	pt.y = 0;
+	LONG lWidth = theDIB.GetWidth();
+	LONG lHeight = theDIB.GetHeight();
+	CSize theSize;
+	theSize.cx = lWidth;
+	theSize.cy = lHeight;
+	CDC* pDC = GetDC();
+	theDIB.Draw(pDC, pt, theSize);
 }

@@ -5,8 +5,10 @@
 
 #pragma once
 #include "Dib.h"
+#include "Dib2.h"
 
 extern CDib m_dib;
+extern CDib2 m_dib2;
 class CImageProcessDoc : public CDocument
 {
 protected: // 仅从序列化创建
@@ -16,6 +18,7 @@ protected: // 仅从序列化创建
 // 特性
 public:
 	CDib m_dib;	//声明一个dib对象
+	CDib2 m_dib2;//声明一个dib2对象
 
 protected:
 	HGLOBAL m_hDIB;

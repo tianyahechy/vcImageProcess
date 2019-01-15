@@ -244,6 +244,14 @@ BEGIN
     BEGIN
         MENUITEM "roberts边缘分割",                 ID_RobertsEdgeDetection
     END
+    POPUP "图像增强"
+    BEGIN
+        MENUITEM "线性灰度增强",                      ID_grayTransform_Linear
+    END
+    POPUP "打开图像"
+    BEGIN
+        MENUITEM "打开",                          ID_OPEN2
+    END
 END
 
 IDR_POPUP_EDIT MENU

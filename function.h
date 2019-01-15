@@ -480,3 +480,13 @@ HGLOBAL Rotate_dib2(LPSTR lpSrcDib,		//指向源DIB的指针
 
 	return hDIB;
 }
+
+//线性灰度增强
+BOOL Linear_Transform(
+	BYTE gMin, //表示变换后目标图像的最小灰度值
+	BYTE gMax //表示变换后目标图像的最大灰度值
+	)
+{
+
+	return TRUE;
+}

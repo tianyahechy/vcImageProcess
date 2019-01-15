@@ -25,6 +25,8 @@ public:
 	int getReqByteWidth(int);
 	long  getRectWidth(LPRECT);								//获取区域的宽度
 	long  getRectHeight(LPRECT);							//获取区域的高度
+    // 获取位图数据
+	LPBYTE GetData();
 public:
 	void clearMemory();
 	void InitMembers();
