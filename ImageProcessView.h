@@ -5,6 +5,7 @@
 #pragma once
 #include "ImageProcessDoc.h"
 #include "Dib2.h"
+#include "HistogramDib.h"
 
 class CImageProcessView : public CView
 {
@@ -59,6 +60,10 @@ public:
 	afx_msg void OnGeomrota();
 	afx_msg void OngraytransformLinear();
 	afx_msg void OnOpen2();
+	afx_msg void Onseglineartransform();
+	afx_msg void Onnonlineartransform();
+	afx_msg void OnHistogramEqulization();
+	afx_msg void OnHistogramMatch();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本

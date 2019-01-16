@@ -187,7 +187,7 @@ BEGIN
         MENUITEM "打印预览(&V)",                    ID_FILE_PRINT_PREVIEW
         MENUITEM "打印设置(&R)...",                 ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
-        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
@@ -247,6 +247,10 @@ BEGIN
     POPUP "图像增强"
     BEGIN
         MENUITEM "线性灰度增强",                      ID_grayTransform_Linear
+        MENUITEM "分段线性灰度增强",                    ID_segLinearTransform
+        MENUITEM "非线性灰度增强",                     ID_nonLinearTransform
+        MENUITEM "直方图均衡化",                      ID_Histogram_Equlization
+        MENUITEM "直方图规定化",                      ID_Histogram_Match
     END
     POPUP "打开图像"
     BEGIN

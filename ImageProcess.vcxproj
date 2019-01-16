@@ -195,6 +195,7 @@
     <ClInclude Include="EdgeDetection.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="function.h" />
+    <ClInclude Include="HistogramDib.h" />
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="ImageProcessDoc.h" />
     <ClInclude Include="ImageProcessView.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="DlgZoom.cpp" />
     <ClCompile Include="EdgeDetection.cpp" />
     <ClCompile Include="FileView.cpp" />
+    <ClCompile Include="HistogramDib.cpp" />
     <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageProcessDoc.cpp" />
     <ClCompile Include="ImageProcessView.cpp" />

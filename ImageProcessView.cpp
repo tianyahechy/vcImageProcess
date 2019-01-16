@@ -45,6 +45,10 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_GeomRota, &CImageProcessView::OnGeomrota)
 	ON_COMMAND(ID_grayTransform_Linear, &CImageProcessView::OngraytransformLinear)
 	ON_COMMAND(ID_OPEN2, &CImageProcessView::OnOpen2)
+	ON_COMMAND(ID_segLinearTransform, &CImageProcessView::Onseglineartransform)
+	ON_COMMAND(ID_nonLinearTransform, &CImageProcessView::Onnonlineartransform)
+	ON_COMMAND(ID_Histogram_Equlization, &CImageProcessView::OnHistogramEqulization)
+	ON_COMMAND(ID_Histogram_Match, &CImageProcessView::OnHistogramMatch)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -660,8 +664,8 @@ void CImageProcessView::OnOpen2()
 	_bLoadImage = true;
 	//显示图像
 	CPoint pt;
-	pt.x = 0;
-	pt.y = 0;
+	pt.x = 10.0;
+	pt.y = 10.0;
 	LONG lWidth = theDIB.GetWidth();
 	LONG lHeight = theDIB.GetHeight();
 	CSize theSize;
@@ -669,4 +673,232 @@ void CImageProcessView::OnOpen2()
 	theSize.cy = lHeight;
 	CDC* pDC = GetDC();
 	theDIB.Draw(pDC, pt, theSize);
+}
+
+
+void CImageProcessView::Onseglineartransform()
+{
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	//源图像灰度区间分段点
+	BYTE gSrc1 = 100;
+	BYTE gSrc2 = 150;
+	//变换后的目标图像灰度区间分段点
+	BYTE gDst1 = 50;
+	BYTE gDst2 = 200;
+
+	//逐个扫描图像中的像素点，进行灰度线性变换
+	for (int j = 0; j < lHeight; j++)
+	{
+		for (int i = 0; i < lWidth; i++)
+		{
+			//指向源图像倒数第j行第i个像素的指针
+			LPBYTE lpSrc = (LPBYTE)lpDIBBits + lWidth * j + i;
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//源像素值
+			BYTE pixel = (BYTE)*lpSrc;
+			if (pixel < gSrc1)
+			{
+				*lpDst = (BYTE)(((float)gDst1/gSrc1) * pixel + 0.5);
+			}
+			if( (pixel >= gSrc1) &&
+				(pixel <= gSrc2))
+			{
+				*lpDst = (BYTE)(((float)(gDst2 - gDst1) / (gSrc2 - gSrc1)) * ( pixel - gSrc1)+ gDst1 + 0.5);
+			}
+			if ((pixel > gSrc2) &&
+				(pixel <= 255))
+			{
+				*lpDst = (BYTE)(((float)(255 - gDst2) / (255 - gSrc2)) * (pixel - gSrc2) + gDst2 + 0.5);
+			}
+			
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 100;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+}
+
+
+void CImageProcessView::Onnonlineartransform()
+{
+	// TODO:  在此添加命令处理程序代码
+
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	//参数
+	double a = 50.0;
+	double b = 0.8;
+	double c = 1.05;
+
+	//逐个扫描图像中的像素点，进行灰度线性变换
+	for (int j = 0; j < lHeight; j++)
+	{
+		for (int i = 0; i < lWidth; i++)
+		{
+			//指向源图像倒数第j行第i个像素的指针
+			LPBYTE lpSrc = (LPBYTE)lpDIBBits + lWidth * j + i;
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//源像素值
+			BYTE pixel = (BYTE)*lpSrc;
+
+			*lpDst = (BYTE)((log((double)(pixel + 1))) / (b * log(c)) + a + 0.5);
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+
+}
+
+
+void CImageProcessView::OnHistogramEqulization()
+{
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//源图像灰度分布概率密度变量
+	float fPro[256];
+	//中间变量
+	float temp[256];
+	//中间变量
+	int nRst[256];
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	//初始化中间变量temp
+	memset(temp, 0, sizeof(temp));
+	//获取源图像灰度分布的概率密度
+	CHistogramDib hist(&theDIB);
+	hist.Histogram_Statistic(fPro);
+
+	//进行直方图均衡化处理
+	for (int i = 0; i < 256; i++)
+	{
+		if (i == 0)
+		{
+			temp[0] = fPro[0];
+		}
+		else
+		{
+			temp[i] = temp[i - 1] + fPro[i];
+		}
+		nRst[i] = (int)(255.0f * temp[i] + 0.5f);
+	}
+
+	//将直方图均衡化后的结果写到目标图像中
+	for (int j = 0; j < lHeight; j++)
+	{
+		for (int i = 0; i < lWidth; i++)
+		{
+			//指向源图像倒数第j行第i个像素的指针
+			LPBYTE lpSrc = (LPBYTE)lpDIBBits + lWidth * j + i;
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//源像素值
+			BYTE pixel = (BYTE)*lpSrc;
+
+			*lpDst = (BYTE)(nRst[pixel]);
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+
+}
+
+
+void CImageProcessView::OnHistogramMatch()
+{
+
 }
