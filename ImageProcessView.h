@@ -64,6 +64,7 @@ public:
 	afx_msg void Onnonlineartransform();
 	afx_msg void OnHistogramEqulization();
 	afx_msg void OnHistogramMatch();
+	afx_msg void OnAverageSmooth();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本

@@ -49,6 +49,7 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_nonLinearTransform, &CImageProcessView::Onnonlineartransform)
 	ON_COMMAND(ID_Histogram_Equlization, &CImageProcessView::OnHistogramEqulization)
 	ON_COMMAND(ID_Histogram_Match, &CImageProcessView::OnHistogramMatch)
+	ON_COMMAND(ID_Average_Smooth, &CImageProcessView::OnAverageSmooth)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -1024,6 +1025,72 @@ void CImageProcessView::OnHistogramMatch()
 			BYTE pixel = (BYTE)*lpSrc;
 			//对目标对象进行映射处理
 			*lpDst = (BYTE)(nMap[pixel]);
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+}
+
+void CImageProcessView::OnAverageSmooth()
+{
+	// TODO:  在此添加命令处理程序代码	
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	
+	//逐个扫描图像中的像素点，计算其邻域均值
+	for (int j = 0; j < lHeight - 1; j++)
+	{
+		for (int i = 0; i < lWidth - 1; i++)
+		{			
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//计算当前点与其周围8个点的均值
+			BYTE average = (BYTE)((float)
+				(
+				lpDIBBits[(j - 1)*lWidth + (i - 1)] +
+				lpDIBBits[(j - 1)*lWidth + i] +
+				lpDIBBits[(j - 1)*lWidth + (i + 1)] + 
+				lpDIBBits[j*lWidth + (i - 1)] +
+				lpDIBBits[j*lWidth + i] +
+				lpDIBBits[j*lWidth + (i + 1)] +
+				lpDIBBits[(j + 1)*lWidth + (i - 1)] +
+				lpDIBBits[(j + 1)*lWidth + i] +
+				lpDIBBits[(j + 1)*lWidth + (i + 1)] 
+				) / 9 + 0.5);
+
+			//将计算得到的均值付给当前点对应的像素点
+			*lpDst = average;
 
 		}
 	}

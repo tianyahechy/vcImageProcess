@@ -251,6 +251,7 @@ BEGIN
         MENUITEM "非线性灰度增强",                     ID_nonLinearTransform
         MENUITEM "直方图均衡化",                      ID_Histogram_Equlization
         MENUITEM "直方图规定化",                      ID_Histogram_Match
+        MENUITEM "邻域平均法-图像平滑",                  ID_Average_Smooth
     END
     POPUP "打开图像"
     BEGIN
