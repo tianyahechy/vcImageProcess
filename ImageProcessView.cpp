@@ -900,5 +900,142 @@ void CImageProcessView::OnHistogramEqulization()
 
 void CImageProcessView::OnHistogramMatch()
 {
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//源图像灰度分布概率密度变量
+	float fPro[256];
+	//中间变量
+	float temp[256];
+	//灰度映射表变量
+	int nMap[256];
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存IDB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+	//初始化中间变量temp
+	memset(temp, 0, sizeof(temp));
+	//获取源图像灰度分布的概率密度
+	CHistogramDib hist(&theDIB);
+	hist.Histogram_Statistic(fPro);
 
+	//进行直方图均衡化处理
+	for (int i = 0; i < 256; i++)
+	{
+		if (i == 0)
+		{
+			temp[0] = fPro[0];
+		}
+		else
+		{
+			temp[i] = temp[i - 1] + fPro[i];
+		}
+		
+		fPro[i] = temp[i];
+	}
+
+	//计算规定变换后的直方图
+	//表示规定直方图的灰度级,这里是24级
+	BYTE bGray = 64;;
+	//表示规定化直方图映射关系
+	int npMap[64];
+	//表示规定化灰度分布概率
+	float fpPro[64];
+	float a = 1.0f / (32.0f * 63.0f);
+	for (int i = 0; i < 64; i++)
+	{
+		npMap[i] = i * 4;
+		fpPro[i] = a * i;
+	}
+	for (int i = 0; i < bGray; i++)
+	{
+		if (i == 0)
+		{
+			temp[0] = fpPro[0];
+		}
+		else
+		{
+			temp[i] = temp[i - 1] + fpPro[i];
+		}
+
+		fpPro[i] = temp[i];
+	}
+	//确定映射关系
+	for (int i = 0; i < 256; i++)
+	{
+		//最接近的规定化直方图灰度级变量
+		int m = 0;
+		//最小差值变量
+		float min_Value = 1.0f;
+		//枚举规定直方图各灰度
+		for (int j = 0; j < bGray; j++)
+		{
+			//当前差值变量
+			float now_value = 0.0f;
+			//差值计算
+			if ( fPro[i] - fpPro[j] >= 0.0f)
+			{
+				now_value = fPro[i] - fpPro[j];
+			}
+			else
+			{
+				now_value =  fpPro[j] - fPro[i];
+			}
+			//寻找最接近的规定化直方图灰度级
+			if (now_value < min_Value)
+			{
+				//最接近的灰度级
+				m = j;
+				//最小差值
+				min_Value = now_value;
+			}
+		
+		}	
+		//建立灰度映射表
+		nMap[i] = npMap[m];
+	}
+
+	//将直方图均衡化后的结果写到目标图像中
+	for (int j = 0; j < lHeight; j++)
+	{
+		for (int i = 0; i < lWidth; i++)
+		{
+			//指向源图像倒数第j行第i个像素的指针
+			LPBYTE lpSrc = (LPBYTE)lpDIBBits + lWidth * j + i;
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//源像素值
+			BYTE pixel = (BYTE)*lpSrc;
+			//对目标对象进行映射处理
+			*lpDst = (BYTE)(nMap[pixel]);
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
 }
