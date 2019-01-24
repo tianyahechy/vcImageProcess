@@ -50,6 +50,7 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_Histogram_Equlization, &CImageProcessView::OnHistogramEqulization)
 	ON_COMMAND(ID_Histogram_Match, &CImageProcessView::OnHistogramMatch)
 	ON_COMMAND(ID_Average_Smooth, &CImageProcessView::OnAverageSmooth)
+	ON_COMMAND(ID_ValueAverageSmooth, &CImageProcessView::OnValueaveragesmooth)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -1105,4 +1106,85 @@ void CImageProcessView::OnAverageSmooth()
 	pt.x = 10;
 	pt.y = 10;
 	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+}
+
+
+void CImageProcessView::OnValueaveragesmooth()
+{
+	// TODO:  在此添加命令处理程序代码
+	// TODO:  在此添加命令处理程序代码	
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存DIB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+
+	//定义加权模板
+	int stru[3][3] = { 1, 2, 1, 2, 4, 2, 1, 2, 1 };
+	//模板中各个元素总和
+	int sum = 0;
+	//计算模板中各元素权值的总和
+	for (int m = 0; m < 3; m++)
+	{
+		for (int n = 0; n < 3; n++)
+		{
+			sum += stru[m][n];
+		}
+	}
+	//逐个扫描图像中的像素点，计算其邻域均值
+	for (int j = 0; j < lHeight - 1; j++)
+	{
+		for (int i = 0; i < lWidth - 1; i++)
+		{
+			//指向目标图像倒数第j行第i个像素的指针
+			LPBYTE lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//计算当前点与其周围8个点的均值
+			BYTE average = (BYTE)((float)
+				(
+				lpDIBBits[(j + 1)*lWidth + (i - 1)] * stru[0][0]+
+				lpDIBBits[(j + 1)*lWidth + i] * stru[0][1]+
+				lpDIBBits[(j + 1)*lWidth + (i + 1)] * stru[0][2] +
+				lpDIBBits[j*lWidth + (i - 1)] * stru[1][0] +
+				lpDIBBits[j*lWidth + i] * stru[1][1]+
+				lpDIBBits[j*lWidth + (i + 1)] * stru[1][2] +
+				lpDIBBits[(j - 1)*lWidth + (i - 1)] * stru[2][0]+
+				lpDIBBits[(j - 1)*lWidth + i] * stru[2][1]+
+				lpDIBBits[(j - 1)*lWidth + (i + 1)] * stru[2][2]
+				) / sum + 0.5);
+
+			//将计算得到的加权均值付给当前点对应的像素点
+			*lpDst = average;
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+	
 }
