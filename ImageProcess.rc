@@ -254,6 +254,7 @@ BEGIN
         MENUITEM "邻域平均法-图像平滑",                  ID_Average_Smooth
         MENUITEM "加权平均法",                       ID_ValueAverageSmooth
         MENUITEM "选择式掩膜平滑法",                    ID_SelectSmooth
+        MENUITEM "中值滤波法",                       ID_MiddleSmooth
     END
     POPUP "打开图像"
     BEGIN

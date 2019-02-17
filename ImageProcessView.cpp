@@ -52,6 +52,7 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_Average_Smooth, &CImageProcessView::OnAverageSmooth)
 	ON_COMMAND(ID_ValueAverageSmooth, &CImageProcessView::OnValueaveragesmooth)
 	ON_COMMAND(ID_SelectSmooth, &CImageProcessView::OnSelectsmooth)
+	ON_COMMAND(ID_MiddleSmooth, &CImageProcessView::OnMiddlesmooth)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -1382,6 +1383,89 @@ void CImageProcessView::OnSelectsmooth()
 	}
 	
 
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+}
+
+void CImageProcessView::OnMiddlesmooth()
+{
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	//窗口像素值及中值
+	BYTE pixel[9], mid;
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存DIB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+	//初始化新分配内存，设定初始值为0
+	LPBYTE lpDst = (LPBYTE)lpNewDIBBits;
+	memset(lpDst, (BYTE)0, lWidth * lHeight);
+
+	//逐个扫描图像中的像素点，计算其邻域均值
+	for (int j = 0; j < lHeight - 1; j++)
+	{
+		for (int i = 0; i < lWidth - 1; i++)
+		{
+			//把3*3屏蔽窗口的所有像素值放入pixel[m]
+			int m = 0;
+			for (int y = j - 1; y <= j+1; y++)
+			{
+				for (int x = i - 1; x <= i + 1; x++)
+				{
+					pixel[m] = lpDIBBits[y*lWidth + x];
+					m++;
+				}
+			}
+			//把pixel[m]中的值按降序排序
+			int flag = 0;
+			BYTE temp = 0;
+			do
+			{
+				flag = 0;
+				for (int m = 0; m < 8; m++)
+				{
+					if (pixel[m] < pixel[m+1])
+					{
+						temp = pixel[m];
+						pixel[m] = pixel[m + 1];
+						pixel[m + 1] = temp;
+						flag = 1;
+					}
+				}
+			} while (flag == 1);
+
+			//计算中值Mid
+			mid = pixel[4];
+			//指向目标图像倒数第j行第i个像素的指针
+			lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
+			//将中值赋给目前图像当前点对应的像素点
+			*lpDst = mid;
+
+		}
+	}
 	//复制变换后的图像
 	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
 	//释放内存
