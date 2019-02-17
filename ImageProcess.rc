@@ -255,6 +255,7 @@ BEGIN
         MENUITEM "加权平均法",                       ID_ValueAverageSmooth
         MENUITEM "选择式掩膜平滑法",                    ID_SelectSmooth
         MENUITEM "中值滤波法",                       ID_MiddleSmooth
+        MENUITEM "门限梯度锐化",                      ID_GateGrad
     END
     POPUP "打开图像"
     BEGIN

@@ -53,6 +53,7 @@ BEGIN_MESSAGE_MAP(CImageProcessView, CView)
 	ON_COMMAND(ID_ValueAverageSmooth, &CImageProcessView::OnValueaveragesmooth)
 	ON_COMMAND(ID_SelectSmooth, &CImageProcessView::OnSelectsmooth)
 	ON_COMMAND(ID_MiddleSmooth, &CImageProcessView::OnMiddlesmooth)
+	ON_COMMAND(ID_GateGrad, &CImageProcessView::OnGategrad)
 END_MESSAGE_MAP()
 
 // CImageProcessView 构造/析构
@@ -1463,6 +1464,76 @@ void CImageProcessView::OnMiddlesmooth()
 			lpDst = (LPBYTE)lpNewDIBBits + lWidth * j + i;
 			//将中值赋给目前图像当前点对应的像素点
 			*lpDst = mid;
+
+		}
+	}
+	//复制变换后的图像
+	memcpy(lpDIBBits, lpNewDIBBits, lWidth * lHeight);
+	//释放内存
+	LocalUnlock(hNewDIBBits);
+	LocalFree(hNewDIBBits);
+
+	CDC* pDC = GetDC();
+	CPoint pt;
+	pt.x = 10;
+	pt.y = 10;
+	theDIB.Draw(pDC, pt, CSize(lWidth, lHeight));
+}
+
+
+void CImageProcessView::OnGategrad()
+{
+	// TODO:  在此添加命令处理程序代码
+	// TODO:  在此添加命令处理程序代码
+	if (!_bLoadImage)
+	{
+		AfxMessageBox("no image");
+		return;
+	}
+	BYTE t = 30;
+	//找到源图像的起始位置
+	LPBYTE lpDIBBits = theDIB.GetData();
+	//获得图像的宽度
+	long lWidth = theDIB.GetWidth();
+	//获得图像的高度
+	long lHeight = theDIB.GetHeight();
+	//暂时分配内存给新图像
+	HLOCAL hNewDIBBits = LocalAlloc(LHND, lWidth * lHeight);
+	if (hNewDIBBits == NULL)
+	{
+		return;
+	}
+	//指向缓存DIB图像的指针
+	LPBYTE lpNewDIBBits = (LPBYTE)LocalLock(hNewDIBBits);
+	//初始化新分配内存，设定初始值为0
+	memset(lpNewDIBBits, (BYTE)0, lWidth * lHeight);
+
+	//逐个扫描图像中的像素点，进行门限梯度锐化处理
+	for (int j = 1; j < lHeight - 1; j++)
+	{
+		for (int i = 1; i < lWidth - 1; i++)
+		{
+			//根据双方向一次微分公式计算当前像素的灰度值
+			BYTE temp = (BYTE)sqrt((float)((lpDIBBits[lWidth*j + i] - lpDIBBits[lWidth*j + (i - 1)])
+				* (lpDIBBits[lWidth*j + i] - lpDIBBits[lWidth*j + (i - 1)])
+				+ (lpDIBBits[lWidth*j + i] - lpDIBBits[lWidth*(j - 1) + i])
+				* (lpDIBBits[lWidth*j + i] - lpDIBBits[lWidth*(j - 1) + i])
+				));
+			if (temp >= t)
+			{
+				if ((temp + 100) > 255)
+				{
+					lpNewDIBBits[lWidth*j + i] = 255;
+				}
+				else
+				{
+					lpNewDIBBits[lWidth*j + i] = temp + 100;
+				}
+			}
+			else
+			{
+				lpNewDIBBits[lWidth*j + i] = lpDIBBits[lWidth * j + i];
+			}
 
 		}
 	}

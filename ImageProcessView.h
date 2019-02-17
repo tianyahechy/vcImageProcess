@@ -68,6 +68,7 @@ public:
 	afx_msg void OnValueaveragesmooth();
 	afx_msg void OnSelectsmooth();
 	afx_msg void OnMiddlesmooth();
+	afx_msg void OnGategrad();
 };
 
 #ifndef _DEBUG  // ImageProcessView.cpp 中的调试版本
